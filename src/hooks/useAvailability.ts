@@ -15,7 +15,8 @@ export function useAvailability(): UseAvailabilityResult {
   useEffect(() => {
     async function fetchData() {
       try {
-        const response = await fetch('/room_availability.json');
+        const dataUrl = `${import.meta.env.BASE_URL}room_availability.json`;
+        const response = await fetch(dataUrl);
         if (!response.ok) {
           throw new Error('Failed to load availability data');
         }
