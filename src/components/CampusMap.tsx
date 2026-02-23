@@ -171,6 +171,33 @@ export function CampusMap() {
     };
   });
 
+  const normalizedQuery = searchQuery.trim().toLowerCase();
+  const visibleBuildings = normalizedQuery
+    ? buildingsWithCoords.filter((building) => building.name.toLowerCase().includes(normalizedQuery))
+    : buildingsWithCoords;
+
+  const handleSearchSelect = () => {
+    if (!normalizedQuery) {
+      return;
+    }
+
+    const exactMatch = buildingsWithCoords.find(
+      (building) => building.name.toLowerCase() === normalizedQuery
+    );
+    const firstMatch = exactMatch || visibleBuildings[0];
+
+    if (!firstMatch) {
+      return;
+    }
+
+    setTargetArea({
+      center: { lat: firstMatch.lat, lng: firstMatch.lng },
+      zoom: CAMPUS_DEFAULT_ZOOM,
+      key: Date.now(),
+    });
+    setSelectedBuilding(firstMatch.name);
+  };
+
   return (
     <div className="relative h-full">
       {/* Map container - full size */}
@@ -200,7 +227,7 @@ export function CampusMap() {
           onMouseMove={(lat, lng) => setMousePos({ lat, lng })}
         /> */}
         {/* Building markers */}
-        {buildingsWithCoords.map((building) => (
+        {visibleBuildings.map((building) => (
           <Marker
             key={building.name}
             position={[building.lat, building.lng]}
@@ -221,6 +248,12 @@ export function CampusMap() {
             placeholder="Search buildings..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                e.preventDefault();
+                handleSearchSelect();
+              }
+            }}
             className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg bg-white shadow-lg focus:ring-2 focus:ring-cornell-red focus:border-transparent"
           />
           <svg
