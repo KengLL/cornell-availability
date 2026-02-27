@@ -123,7 +123,7 @@ export function getBuildingCoordinate(
 export const CAMPUS_AREAS = {
   central: {
     name: 'Central Campus',
-    center: { lat: 42.4482, lng: -76.4787 },
+    center: { lat: 42.4473, lng: -76.4807 },
     zoom: 17,
   },
   west: {
@@ -149,5 +149,5 @@ export const CAMPUS_AREAS = {
 };
 
 // Full campus view
-export const CAMPUS_CENTER = { lat: 42.4480, lng: -76.4800 };
+export const CAMPUS_CENTER = { lat: 42.4473, lng: -76.4807 };
 export const CAMPUS_DEFAULT_ZOOM = 16.5;

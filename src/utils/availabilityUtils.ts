@@ -9,43 +9,64 @@ import {
 } from '../types';
 import { getCurrentDayCode, getCurrentMinutes } from './timeUtils';
 
-const SOON_THRESHOLD = 30; // minutes
+const MIN_BREAK = 30;    // gaps <= 30 min between sessions → merged into one occupied block
+const SOON_THRESHOLD = 15; // within 15 min of next block → soon-available
+
+interface OccupiedBlock {
+  start: number;
+  end: number;
+}
+
+// Merge consecutive sessions where the gap between them is <= MIN_BREAK into single blocks.
+function buildBlocks(sorted: CourseSession[]): OccupiedBlock[] {
+  const blocks: OccupiedBlock[] = [];
+  for (const course of sorted) {
+    const last = blocks[blocks.length - 1];
+    if (!last || course.start - last.end > MIN_BREAK) {
+      blocks.push({ start: course.start, end: course.end });
+    } else {
+      last.end = Math.max(last.end, course.end);
+    }
+  }
+  return blocks;
+}
 
 export function getRoomStatus(
   schedule: RoomSchedule,
   day: DayCode,
   currentMinutes: number
-): { status: RoomStatus; currentCourse?: CourseSession; nextCourse?: CourseSession; minutesUntilChange?: number } {
+): { status: RoomStatus; currentCourse?: CourseSession; nextCourse?: CourseSession; minutesUntilChange?: number; freeAt?: number } {
   const daySchedule = schedule[day] || [];
 
-  // No classes scheduled for today = available all day
   if (daySchedule.length === 0) {
     return { status: 'available' };
   }
 
-  // Find current course
-  let currentCourse: CourseSession | undefined;
-  let nextCourse: CourseSession | undefined;
+  const sorted = [...daySchedule].sort((a, b) => a.start - b.start);
+  const blocks = buildBlocks(sorted);
 
-  for (const course of daySchedule) {
-    if (course.start <= currentMinutes && currentMinutes < course.end) {
-      currentCourse = course;
-    } else if (course.start > currentMinutes && !nextCourse) {
-      nextCourse = course;
-    }
-  }
+  const currentBlock = blocks.find(b => b.start <= currentMinutes && currentMinutes < b.end);
+  const nextBlock = blocks.find(b => b.start > currentMinutes);
 
-  if (currentCourse) {
+  if (currentBlock) {
+    // Specific session at currentMinutes, or next one inside the block (if in a merged break)
+    const currentCourse =
+      sorted.find(c => c.start <= currentMinutes && currentMinutes < c.end) ??
+      sorted.find(c => c.start > currentMinutes && c.start < currentBlock.end);
+    const nextCourse = nextBlock ? sorted.find(c => c.start >= nextBlock.start) : undefined;
     return {
       status: 'occupied',
       currentCourse,
       nextCourse,
-      minutesUntilChange: currentCourse.end - currentMinutes,
+      freeAt: currentBlock.end,
+      minutesUntilChange: currentBlock.end - currentMinutes,
     };
   }
 
-  if (nextCourse) {
-    const minutesUntilNext = nextCourse.start - currentMinutes;
+  if (nextBlock) {
+    const minutesUntilNext = nextBlock.start - currentMinutes;
+    const nextCourse = sorted.find(c => c.start >= nextBlock.start);
+
     if (minutesUntilNext <= SOON_THRESHOLD) {
       return {
         status: 'soon-available',
@@ -53,6 +74,7 @@ export function getRoomStatus(
         minutesUntilChange: minutesUntilNext,
       };
     }
+
     return {
       status: 'available',
       nextCourse,
@@ -74,7 +96,7 @@ export function getBuildingAvailability(
 
   const roomAvailabilities: RoomAvailability[] = Object.entries(rooms).map(
     ([roomNumber, schedule]) => {
-      const { status, currentCourse, nextCourse, minutesUntilChange } = getRoomStatus(
+      const { status, currentCourse, nextCourse, minutesUntilChange, freeAt } = getRoomStatus(
         schedule,
         currentDay,
         currentMinutes
@@ -85,6 +107,7 @@ export function getBuildingAvailability(
         currentCourse,
         nextCourse,
         minutesUntilChange,
+        freeAt,
       };
     }
   );
@@ -98,7 +121,7 @@ export function getBuildingAvailability(
   });
 
   const availableCount = roomAvailabilities.filter(
-    (r) => r.status === 'available' || r.status === 'soon-available'
+    (r) => r.status === 'available'
   ).length;
 
   return {

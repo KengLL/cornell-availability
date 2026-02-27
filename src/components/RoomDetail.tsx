@@ -13,7 +13,7 @@ interface RoomDetailProps {
 
 export function RoomDetail({ roomNumber, buildingName, schedule, onClose }: RoomDetailProps) {
   const { currentDay, currentMinutes } = useAvailabilityContext();
-  const { status, currentCourse, nextCourse, minutesUntilChange } = getRoomStatus(
+  const { status, currentCourse, nextCourse, minutesUntilChange, freeAt } = getRoomStatus(
     schedule,
     currentDay,
     currentMinutes
@@ -33,7 +33,7 @@ export function RoomDetail({ roomNumber, buildingName, schedule, onClose }: Room
     'soon-available': {
       bg: 'bg-yellow-100',
       text: 'text-yellow-800',
-      label: 'Available Soon',
+      label: 'Class Starting Soon',
     },
     'no-data': {
       bg: 'bg-gray-100',
@@ -98,10 +98,10 @@ export function RoomDetail({ roomNumber, buildingName, schedule, onClose }: Room
                   {currentCourse.course_code}: {currentCourse.title}
                 </div>
                 <div className="text-sm text-gray-600">
-                  Until {minutesToTimeString(currentCourse.end)}
+                  Until {minutesToTimeString(freeAt ?? currentCourse.end)}
                   {minutesUntilChange && (
                     <span className="ml-2">
-                      ({formatMinutesRemaining(minutesUntilChange)} remaining)
+                      ({formatMinutesRemaining(freeAt ? freeAt - currentMinutes : minutesUntilChange)} remaining)
                     </span>
                   )}
                 </div>

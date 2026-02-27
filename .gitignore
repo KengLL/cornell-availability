@@ -5,3 +5,7 @@ build/
 coverage/
 .env
 .DS_Store
+
+cookies.txt
+*.pyc
+__pycache__/

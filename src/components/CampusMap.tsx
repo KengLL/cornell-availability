@@ -4,7 +4,6 @@ import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import {
   BUILDING_COORDINATES,
-  CAMPUS_AREAS,
   CAMPUS_CENTER,
   CAMPUS_DEFAULT_ZOOM,
 } from '../data/buildingCoordinates';
@@ -156,11 +155,6 @@ export function CampusMap() {
   // const [mapCenter, setMapCenter] = useState({ lat: CAMPUS_CENTER.lat, lng: CAMPUS_CENTER.lng });
   // const [mousePos, setMousePos] = useState<{ lat: number; lng: number } | null>(null);
 
-  const handleAreaClick = (areaKey: keyof typeof CAMPUS_AREAS) => {
-    const area = CAMPUS_AREAS[areaKey];
-    setTargetArea({ ...area, key: Date.now() });
-  };
-
   // Get buildings with coordinates and their availability status
   const buildingsWithCoords = BUILDING_COORDINATES.map((coord) => {
     const buildingData = buildings.find((b) => b.name === coord.name);
@@ -239,10 +233,9 @@ export function CampusMap() {
         ))}
       </MapContainer>
 
-      {/* Floating controls overlay */}
-      <div className="absolute top-4 left-4 right-4 z-[1000] flex flex-wrap gap-4 items-center justify-between pointer-events-none">
-        {/* Search input */}
-        <div className="relative flex-1 min-w-[200px] max-w-md pointer-events-auto">
+      {/* Search bar - top left */}
+      <div className="absolute top-4 left-4 right-4 z-[1000] pointer-events-none">
+        <div className="relative max-w-sm pointer-events-auto">
           <input
             type="text"
             placeholder="Search buildings..."
@@ -257,33 +250,27 @@ export function CampusMap() {
             className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg bg-white shadow-lg focus:ring-2 focus:ring-cornell-red focus:border-transparent"
           />
           <svg
-            className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400"
+            className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
           >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-            />
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
           </svg>
         </div>
-
-        {/* Navigation buttons */}
-        <div className="flex gap-1 pointer-events-auto bg-white rounded-lg shadow-lg p-1">
-          {(['west', 'north', 'central', 'south', 'east'] as const).map((area) => (
-            <button
-              key={area}
-              onClick={() => handleAreaClick(area)}
-              className="px-3 py-1.5 text-xs font-semibold rounded-md bg-gray-100 text-gray-700 hover:bg-cornell-red hover:text-white transition-colors"
-            >
-              {area.charAt(0).toUpperCase() + area.slice(1, 4).toUpperCase()}
-            </button>
-          ))}
-        </div>
       </div>
+
+      {/* Recenter button - bottom right */}
+      <button
+        onClick={() => setTargetArea({ center: CAMPUS_CENTER, zoom: CAMPUS_DEFAULT_ZOOM, key: Date.now() })}
+        className="absolute bottom-6 right-4 z-[1000] bg-cornell-red rounded-lg shadow-lg p-2.5 hover:bg-cornell-darkRed transition-colors border border-cornell-red"
+        aria-label="Recenter map"
+        title="Recenter map"
+      >
+        <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+        </svg>
+      </button>
 
       {/* Coordinate display - bottom left */}
       {/* <div className="absolute bottom-4 left-4 z-[1000] bg-white/90 rounded-lg shadow-lg p-3 font-mono text-xs pointer-events-none">

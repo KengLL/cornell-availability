@@ -49,11 +49,11 @@ function AppContent() {
         {/* Building detail overlay */}
         {selectedBuilding && (
           <div
-            className="absolute inset-0 z-[1001] flex items-center justify-center bg-black/30 p-4"
+            className="absolute inset-0 z-[1001] flex items-start justify-center bg-black/30 px-4 pt-6 pb-4"
             onClick={() => setSelectedBuilding(null)}
           >
             <div
-              className="bg-white rounded-xl shadow-2xl w-full max-w-4xl max-h-[85vh] overflow-hidden"
+              className="bg-white rounded-xl shadow-2xl w-full max-w-4xl min-h-[50vh] max-h-[88vh] overflow-hidden flex flex-col"
               onClick={(e) => e.stopPropagation()}
             >
               <BuildingDetail />

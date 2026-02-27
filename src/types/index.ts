@@ -35,6 +35,7 @@ export interface RoomAvailability {
   currentCourse?: CourseSession;
   nextCourse?: CourseSession;
   minutesUntilChange?: number;
+  freeAt?: number; // for occupied: absolute minute when room is free for >1 hour
 }
 
 export interface BuildingAvailability {

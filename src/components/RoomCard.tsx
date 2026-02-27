@@ -38,10 +38,10 @@ export function RoomCard({ room, onClick }: RoomCardProps) {
 
   // Get brief info text
   let infoText = '';
-  if (room.status === 'occupied' && room.currentCourse) {
-    infoText = `Until ${minutesToTimeString(room.currentCourse.end)}`;
-  } else if (room.status === 'soon-available' && room.minutesUntilChange) {
-    infoText = `${room.minutesUntilChange} min left`;
+  if (room.status === 'occupied' && room.freeAt !== undefined) {
+    infoText = `Until ${minutesToTimeString(room.freeAt)}`;
+  } else if (room.status === 'soon-available' && room.nextCourse) {
+    infoText = `Until ${minutesToTimeString(room.nextCourse.start)}`;
   } else if (room.status === 'available' && room.nextCourse) {
     infoText = `Until ${minutesToTimeString(room.nextCourse.start)}`;
   } else if (room.status === 'available') {

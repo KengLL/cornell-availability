@@ -117,9 +117,9 @@ export function BuildingDetail() {
       : null;
 
   return (
-    <div className="h-full overflow-auto">
+    <div className="flex flex-col h-full min-h-0">
       {/* Building header with close button */}
-      <div className="bg-cornell-red text-white px-4 py-3 flex items-center justify-between">
+      <div className="bg-cornell-red text-white px-4 py-3 flex items-center justify-between flex-shrink-0">
         <h2 className="text-lg font-bold">{building.name}</h2>
         <button
           onClick={() => setSelectedBuilding(null)}
@@ -133,7 +133,7 @@ export function BuildingDetail() {
       </div>
 
       {/* Building summary */}
-      <div className="bg-white border-b sticky top-0 z-10">
+      <div className="bg-white border-b flex-shrink-0">
         <div className="p-4">
           <div className="flex flex-wrap items-center gap-4 mb-4">
             <div className="flex-1">
@@ -143,7 +143,7 @@ export function BuildingDetail() {
                   /{building.totalRooms}
                 </span>
               </div>
-              <div className="text-sm text-gray-500">rooms available now</div>
+              <div className="text-sm text-gray-500">available now</div>
             </div>
           </div>
 
@@ -167,7 +167,7 @@ export function BuildingDetail() {
       </div>
 
       {/* Room grid grouped by floor */}
-      <div className="p-4">
+      <div className="flex-1 overflow-y-auto min-h-0 p-4">
         {filteredRooms.length === 0 ? (
           <div className="text-center py-8 text-gray-500">
             No rooms match this filter
